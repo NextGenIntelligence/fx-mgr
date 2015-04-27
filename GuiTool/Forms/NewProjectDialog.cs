@@ -44,7 +44,7 @@ namespace Prosoft.FXMGR.GuiTool
         {
             InitializeComponent();
 
-            this.controller = controller;    
+            this.controller = controller;
         }
 
         private void projectTypeRadio_SelectedIndexChanged(object sender, EventArgs e)
@@ -101,7 +101,7 @@ namespace Prosoft.FXMGR.GuiTool
 
         private void projectLocationBrowse_Click(object sender, EventArgs e)
         {
-            using(var folderBrowserDialog = new FolderBrowserDialog())
+            using (var folderBrowserDialog = new FolderBrowserDialog())
             {
                 if (folderBrowserDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                 {

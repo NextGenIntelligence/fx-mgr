@@ -36,81 +36,81 @@ using YamlDotNet.RepresentationModel;
 
 namespace Prosoft.FXMGR.ConfigModules
 {
-	using FxInterface = KeyValuePair<string, string>;
+    using FxInterface = KeyValuePair<string, string>;
 
-	public class CfgAspects
-	{
+    public class CfgAspects
+    {
         private readonly IEnumerable<KeyValuePair<string, YamlStream>> metadata;
 
-		private class AspectsFormat
-		{
+        private class AspectsFormat
+        {
             public static IEnumerable<KeyValuePair<string, IEnumerable<string>>> GetModuleAspects(KeyValuePair<string, YamlStream> metadataItem)
-			{
+            {
                 List<KeyValuePair<string, IEnumerable<string>>> aspects = new List<System.Collections.Generic.KeyValuePair<string, IEnumerable<string>>>();
 
-				try
-				{
-					//
-					// Lookup for "aspects" metadata entry.
-					//
-					foreach (YamlDocument metadataEntry in metadataItem.Value.Documents)
-					{
-						YamlMappingNode mappingNode = (YamlMappingNode)metadataEntry.RootNode;
-						YamlNode exportEntry = MetadataProvider.QueryMetadata(mappingNode, "aspects");
+                try
+                {
+                    //
+                    // Lookup for "aspects" metadata entry.
+                    //
+                    foreach (YamlDocument metadataEntry in metadataItem.Value.Documents)
+                    {
+                        YamlMappingNode mappingNode = (YamlMappingNode)metadataEntry.RootNode;
+                        YamlNode exportEntry = MetadataProvider.QueryMetadata(mappingNode, "aspects");
 
-						if (exportEntry != null)
-						{
-							YamlSequenceNode aspectInfoString = (YamlSequenceNode)exportEntry;
+                        if (exportEntry != null)
+                        {
+                            YamlSequenceNode aspectInfoString = (YamlSequenceNode)exportEntry;
 
-							foreach (YamlNode aspectDescriptor in aspectInfoString.Children)
-							{
-								YamlMappingNode aspectDict = (YamlMappingNode)aspectDescriptor;
-								YamlScalarNode aspectKeyNode = (YamlScalarNode)aspectDict.Children.Keys.First();
-								string aspectKey = aspectKeyNode.Value;
-								YamlSequenceNode aspectVal = (YamlSequenceNode)aspectDict.Children.Values.First();
-								string[] aspectVals = new string[aspectVal.Children.Count];
+                            foreach (YamlNode aspectDescriptor in aspectInfoString.Children)
+                            {
+                                YamlMappingNode aspectDict = (YamlMappingNode)aspectDescriptor;
+                                YamlScalarNode aspectKeyNode = (YamlScalarNode)aspectDict.Children.Keys.First();
+                                string aspectKey = aspectKeyNode.Value;
+                                YamlSequenceNode aspectVal = (YamlSequenceNode)aspectDict.Children.Values.First();
+                                string[] aspectVals = new string[aspectVal.Children.Count];
 
-								for(int i = 0; i < aspectVal.Children.Count; ++i)
-								{
-									YamlScalarNode aspect = (YamlScalarNode)aspectVal.Children[i];
-									aspectVals[i] = aspect.Value;
-								}
+                                for (int i = 0; i < aspectVal.Children.Count; ++i)
+                                {
+                                    YamlScalarNode aspect = (YamlScalarNode)aspectVal.Children[i];
+                                    aspectVals[i] = aspect.Value;
+                                }
 
                                 aspects.Add(new KeyValuePair<string, IEnumerable<string>>(aspectKey, aspectVals));
-							}
-						}
-					}
-				}
-				catch (IndexOutOfRangeException)
-				{
+                            }
+                        }
+                    }
+                }
+                catch (IndexOutOfRangeException)
+                {
                     throw new FormatException("Wrong aspect metadata entry.");
-				}
-				catch (InvalidCastException)
-				{
+                }
+                catch (InvalidCastException)
+                {
                     throw new FormatException("Wrong aspect metadata entry.");
-				}
-				catch (NullReferenceException)
-				{
+                }
+                catch (NullReferenceException)
+                {
                     throw new FormatException("Wrong aspect metadata entry.");
-				}
+                }
 
-				return aspects;
-			}
-		}
+                return aspects;
+            }
+        }
 
-		public CfgAspects(IEnumerable<KeyValuePair<string, YamlStream>> metadata)
+        public CfgAspects(IEnumerable<KeyValuePair<string, YamlStream>> metadata)
         {
-			if (metadata == null)
-				throw new System.ArgumentNullException();
+            if (metadata == null)
+                throw new System.ArgumentNullException();
 
             this.metadata = metadata;
         }
 
-		/// <summary>
-		/// Getting list of aspects contained in metadata. 
-		/// </summary>
-		/// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
-		/// 
+        /// <summary>
+        /// Getting list of aspects contained in metadata. 
+        /// </summary>
+        /// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
+        /// 
         public IEnumerable<KeyValuePair<string, List<string>>> GetAspects(IEnumerable<FxInterface> includedModules)
         {
             HashSet<FxInterface> requiredModules = new HashSet<FxInterface>(includedModules);
@@ -122,17 +122,17 @@ namespace Prosoft.FXMGR.ConfigModules
 
                 if (requiredModules.Contains(moduleName))
                 {
-					aspects.AddRange(AspectsFormat.GetModuleAspects(metadataItem));
+                    aspects.AddRange(AspectsFormat.GetModuleAspects(metadataItem));
                 }
             }
 
             Dictionary<string, List<string>> mergedAspects = new Dictionary<string, List<string>>();
 
-            foreach(var a in aspects)
+            foreach (var a in aspects)
             {
                 List<string> aspectSet;
 
-                if(mergedAspects.TryGetValue(a.Key, out aspectSet))
+                if (mergedAspects.TryGetValue(a.Key, out aspectSet))
                 {
                     aspectSet.AddRange(a.Value);
                 }
@@ -144,5 +144,5 @@ namespace Prosoft.FXMGR.ConfigModules
 
             return mergedAspects.ToList();
         }
-	}
+    }
 }

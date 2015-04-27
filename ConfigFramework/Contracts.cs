@@ -41,7 +41,7 @@ namespace Prosoft.FXMGR.ConfigFramework
         IEnumerable<IModelItem> ExcludeModule(IModelItem node);
         IEnumerable<IModelItem> IncludeModule(IModelItem node);
         IEnumerable<IModelItem> ChangeImplementation(IModelItem parent, IModelItem to);
-        
+
         IModelItem GetModelItemByName(string module, string impl = null);
 
         IEnumerable<IModelItem> Model { get; }

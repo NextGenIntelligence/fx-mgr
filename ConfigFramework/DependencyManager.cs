@@ -38,115 +38,115 @@ namespace Prosoft.FXMGR.ConfigFramework
 
     public class DependencyManager
     {
-		//
-		// Set of static methods converting YAML nodes into semantic values.
-		// These methods may throw FormatException in case when given YAML node has incorrect format.
-		//
-		private class MetadataFormat
-		{
-			//--------------------------------------------------------------------------------
-			/// <summary>
-			/// Extracts interface export information from given source or header file.
-			/// </summary>
-			/// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
-			/// 
-			public static FxInterface GetInterfaceExport(string file, YamlDocument doc)
-			{
-				YamlNode exportEntry = null;
+        //
+        // Set of static methods converting YAML nodes into semantic values.
+        // These methods may throw FormatException in case when given YAML node has incorrect format.
+        //
+        private class MetadataFormat
+        {
+            //--------------------------------------------------------------------------------
+            /// <summary>
+            /// Extracts interface export information from given source or header file.
+            /// </summary>
+            /// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
+            /// 
+            public static FxInterface GetInterfaceExport(string file, YamlDocument doc)
+            {
+                YamlNode exportEntry = null;
 
-				if (doc.RootNode is YamlMappingNode)
-				{
-					YamlMappingNode mappingNode = (YamlMappingNode)doc.RootNode;
-					YamlNode interfaceEntry = MetadataProvider.QueryMetadata(mappingNode, "interface");
-					YamlNode implementationEntry = MetadataProvider.QueryMetadata(mappingNode, "implementation");
+                if (doc.RootNode is YamlMappingNode)
+                {
+                    YamlMappingNode mappingNode = (YamlMappingNode)doc.RootNode;
+                    YamlNode interfaceEntry = MetadataProvider.QueryMetadata(mappingNode, "interface");
+                    YamlNode implementationEntry = MetadataProvider.QueryMetadata(mappingNode, "implementation");
 
-					exportEntry = interfaceEntry ?? implementationEntry;
-				}
+                    exportEntry = interfaceEntry ?? implementationEntry;
+                }
 
-				if (exportEntry != null) 
-				{
-					try
-					{
-						YamlSequenceNode interfaceString = (YamlSequenceNode)exportEntry;
-						YamlScalarNode abstractName = (YamlScalarNode)interfaceString.Children[0];
-						YamlScalarNode implName = (YamlScalarNode)interfaceString.Children[1];
-						return new FxInterface(abstractName.Value, implName.Value);
-					}
-					catch (InvalidCastException e)
-					{
+                if (exportEntry != null)
+                {
+                    try
+                    {
+                        YamlSequenceNode interfaceString = (YamlSequenceNode)exportEntry;
+                        YamlScalarNode abstractName = (YamlScalarNode)interfaceString.Children[0];
+                        YamlScalarNode implName = (YamlScalarNode)interfaceString.Children[1];
+                        return new FxInterface(abstractName.Value, implName.Value);
+                    }
+                    catch (InvalidCastException e)
+                    {
                         throw new FormatException(
                             String.Format("Wrong metadata format in file: {0}", file), e.InnerException);
-					}
-					catch (ArgumentOutOfRangeException e)
-					{
+                    }
+                    catch (ArgumentOutOfRangeException e)
+                    {
                         throw new FormatException(
                             String.Format("Wrong metadata format in file: {0}", file), e.InnerException);
-					}
-				}
-				else
-				{
-					return new FxInterface();
-				}
-			}
+                    }
+                }
+                else
+                {
+                    return new FxInterface();
+                }
+            }
 
-			//--------------------------------------------------------------------------------
-			/// <summary>
-			/// Extracts dependency information from given source or header file.
-			/// </summary>
-			/// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
-			/// 
-			public static IEnumerable<string> GetInterfaceDependency(string file, YamlDocument doc)
-			{
-				YamlNode dependencyMetadataEntry = null;
+            //--------------------------------------------------------------------------------
+            /// <summary>
+            /// Extracts dependency information from given source or header file.
+            /// </summary>
+            /// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
+            /// 
+            public static IEnumerable<string> GetInterfaceDependency(string file, YamlDocument doc)
+            {
+                YamlNode dependencyMetadataEntry = null;
 
-				if (doc.RootNode is YamlMappingNode)
-				{
-					YamlMappingNode rootNode = (YamlMappingNode)doc.RootNode;
-					dependencyMetadataEntry = MetadataProvider.QueryMetadata(rootNode, "dependencies");
-				}
+                if (doc.RootNode is YamlMappingNode)
+                {
+                    YamlMappingNode rootNode = (YamlMappingNode)doc.RootNode;
+                    dependencyMetadataEntry = MetadataProvider.QueryMetadata(rootNode, "dependencies");
+                }
 
-				if (dependencyMetadataEntry != null)
-				{
-					try
-					{
-						HashSet<string> dependencies = new HashSet<string>();
-						YamlSequenceNode dependenciesSequence = (YamlSequenceNode)dependencyMetadataEntry;
+                if (dependencyMetadataEntry != null)
+                {
+                    try
+                    {
+                        HashSet<string> dependencies = new HashSet<string>();
+                        YamlSequenceNode dependenciesSequence = (YamlSequenceNode)dependencyMetadataEntry;
 
-						foreach (YamlNode d in dependenciesSequence.Children)
-						{
-							YamlScalarNode abstractName = (YamlScalarNode)d;
-							dependencies.Add(abstractName.Value);
-						}
+                        foreach (YamlNode d in dependenciesSequence.Children)
+                        {
+                            YamlScalarNode abstractName = (YamlScalarNode)d;
+                            dependencies.Add(abstractName.Value);
+                        }
 
-						return dependencies;
-					}
-					catch (InvalidCastException)
-					{
+                        return dependencies;
+                    }
+                    catch (InvalidCastException)
+                    {
                         throw new FormatException(
                             String.Format("Wrong metadata format in file: {0}", file));
-					}
-				}
+                    }
+                }
 
-				return null;
-			}
-		}
+                return null;
+            }
+        }
 
-		//--------------------------------------------------------------------------------
+        //--------------------------------------------------------------------------------
 
         private IDictionary<string, HashSet<string>> abstractToImpl = new Dictionary<string, HashSet<string>>();
         private IDictionary<FxInterface, HashSet<string>> implToDependencies = new Dictionary<FxInterface, HashSet<string>>();
 
-		//--------------------------------------------------------------------------------
-		/// <summary>
-		/// Create dependency manager and fills internal structures by analyzing metadata.
-		/// </summary>
-		/// <exception cref="System.FormatException">Throws when unknown interface is specified.</exception>
-		/// <exception cref="System.ArgumentNullException">Throws when null-ref metadata is specified.</exception>
-		/// 
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// Create dependency manager and fills internal structures by analyzing metadata.
+        /// </summary>
+        /// <exception cref="System.FormatException">Throws when unknown interface is specified.</exception>
+        /// <exception cref="System.ArgumentNullException">Throws when null-ref metadata is specified.</exception>
+        /// 
         public DependencyManager(IEnumerable<KeyValuePair<string, YamlStream>> metadata)
         {
-			if (metadata == null)
-				throw new ArgumentNullException();
+            if (metadata == null)
+                throw new ArgumentNullException();
 
             foreach (KeyValuePair<string, YamlStream> item in metadata)
             {
@@ -189,17 +189,17 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// <summary>
         /// Return interface associated with given metadata item.
         /// </summary>
-		/// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
-		/// 
+        /// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
+        /// 
         public static FxInterface GetAssociatedInterface(KeyValuePair<string, YamlStream> metadataItem)
         {
             foreach (YamlDocument metadataEntry in metadataItem.Value.Documents)
             {
-				FxInterface exportInterface = MetadataFormat.GetInterfaceExport(metadataItem.Key, metadataEntry);
+                FxInterface exportInterface = MetadataFormat.GetInterfaceExport(metadataItem.Key, metadataEntry);
 
-				if (exportInterface.Key != null)
+                if (exportInterface.Key != null)
                 {
-					return exportInterface;
+                    return exportInterface;
                 }
             }
 
@@ -210,17 +210,17 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// <summary>
         /// Return dependencies for given metadata item.
         /// </summary>
-		/// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
-		/// 
+        /// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
+        /// 
         private IEnumerable<string> GetInterfaceDependencies(KeyValuePair<string, YamlStream> metadataItem)
         {
             foreach (YamlDocument document in metadataItem.Value.Documents)
             {
-				IEnumerable<string> dependencies = MetadataFormat.GetInterfaceDependency(metadataItem.Key, document);
+                IEnumerable<string> dependencies = MetadataFormat.GetInterfaceDependency(metadataItem.Key, document);
 
-				if (dependencies != null)
+                if (dependencies != null)
                 {
-					return dependencies;
+                    return dependencies;
                 }
             }
 
@@ -240,18 +240,18 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// <summary>
         /// Get available implementations for given module.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Throws when unknown interface is specified.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Throws when unknown interface is specified.</exception>
+        /// 
         public IEnumerable<string> GetAvailImplementations(string intrface)
         {
-			HashSet<string> implementations;
+            HashSet<string> implementations;
 
-            if(!abstractToImpl.TryGetValue(intrface, out implementations))
-			{
+            if (!abstractToImpl.TryGetValue(intrface, out implementations))
+            {
                 throw new ArgumentException("Using an unknown module " + intrface);
-			}
+            }
 
-			return implementations;
+            return implementations;
         }
 
         //--------------------------------------------------------------------------------
@@ -265,31 +265,31 @@ namespace Prosoft.FXMGR.ConfigFramework
             return implToDependencies.TryGetValue(fullName, out result) ? result : new HashSet<string>();
         }
 
-		//--------------------------------------------------------------------------------
-		/// <summary>
-		/// Checks dependency graph consistency (all dependencies must have corresponding node).
-		/// </summary>
-		public IEnumerable<string> GetUnknownImports()
-		{
-			List<string> unknownImports = new List<string>();
-			List<string> imports = new List<string>();
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// Checks dependency graph consistency (all dependencies must have corresponding node).
+        /// </summary>
+        public IEnumerable<string> GetUnknownImports()
+        {
+            List<string> unknownImports = new List<string>();
+            List<string> imports = new List<string>();
 
-			foreach(var m in implToDependencies.Values)
-			{
-				imports.AddRange(m);
-			}
+            foreach (var m in implToDependencies.Values)
+            {
+                imports.AddRange(m);
+            }
 
-			HashSet<string> uniqueImports = new HashSet<string>(imports);
+            HashSet<string> uniqueImports = new HashSet<string>(imports);
 
-			foreach(var m in uniqueImports)
-			{
-				if(!abstractToImpl.ContainsKey(m))
-				{
-					unknownImports.Add(m);
-				}
-			}
+            foreach (var m in uniqueImports)
+            {
+                if (!abstractToImpl.ContainsKey(m))
+                {
+                    unknownImports.Add(m);
+                }
+            }
 
-			return unknownImports;
-		}
+            return unknownImports;
+        }
     }
 }

@@ -59,7 +59,7 @@ namespace Prosoft.FXMGR.GuiTool
         {
             controller.BeforeAnalyzing -= controller_BeforeSourcesAnalyzing;
             controller.ItemAnalyzed -= controller_ItemAnalyzed;
-            controller.AfterAnalyzing -= controller_AllAnalyzed;            
+            controller.AfterAnalyzing -= controller_AllAnalyzed;
         }
 
         private void AnalyzeProgressDialog_Shown(object sender, EventArgs e)

@@ -48,7 +48,7 @@ namespace Prosoft.FXMGR.ConfigFramework
 
             public AbstractNode(string name, string description)
             {
-				if (name == null) throw new ArgumentNullException();
+                if (name == null) throw new ArgumentNullException();
                 this.name = name;
                 this.description = description;
             }
@@ -66,7 +66,7 @@ namespace Prosoft.FXMGR.ConfigFramework
             public ComponentNode(string name, string description, FxInterface intrface)
                 : base(name, description)
             {
-				if (intrface.Key == null) throw new ArgumentNullException();
+                if (intrface.Key == null) throw new ArgumentNullException();
                 this.intrface = intrface;
             }
 
@@ -92,7 +92,7 @@ namespace Prosoft.FXMGR.ConfigFramework
             public InterfaceNode(string name, string description, FxInterface intrface)
                 : base(name, description, intrface)
             {
-				if (intrface.Value != null) throw new ArgumentException();
+                if (intrface.Value != null) throw new ArgumentException();
             }
 
             public override bool enabled
@@ -121,7 +121,7 @@ namespace Prosoft.FXMGR.ConfigFramework
             public ImplementationNode(string name, string description, FxInterface intrface, InterfaceNode parent)
                 : base(name, description, intrface)
             {
-				if (intrface.Value == null) throw new ArgumentNullException();
+                if (intrface.Value == null) throw new ArgumentNullException();
                 this.parent = parent;
             }
 
@@ -167,10 +167,10 @@ namespace Prosoft.FXMGR.ConfigFramework
 
         public ModelController(IEnumerable<KeyValuePair<string, YamlStream>> metadata, DependencyManager dm, InterfaceTranslator im)
         {
-			if(metadata == null || dm == null || im == null)
-			{
-				throw new ArgumentNullException();
-			}
+            if (metadata == null || dm == null || im == null)
+            {
+                throw new ArgumentNullException();
+            }
 
             this.metadata = metadata;
             this.dependencyManager = dm;
@@ -235,9 +235,9 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// Recursively increment reference counter for specified modules and all their dependencies.
         /// Note: Be sure that dependency graph does not contain cycles.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Unknown imports during reference processing.</exception>
-		/// <exception cref="System.InvalidCastException">Model inconsistemcy has been detected.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Unknown imports during reference processing.</exception>
+        /// <exception cref="System.InvalidCastException">Model inconsistemcy has been detected.</exception>
+        /// 
         private List<ComponentNode> ReferenceModule(string targetModule, int delta)
         {
             var nextTargets = new List<string>();
@@ -254,12 +254,12 @@ namespace Prosoft.FXMGR.ConfigFramework
                 foreach (string target in tempTargets)
                 {
                     FxInterface implementation = this.interfaceMap.TranslateAbstractInterface(target);
-					
-					ComponentNode modelItem = interfaceToModelItem[new FxInterface(target, null)];
-					InterfaceNode interfaceModelItem = (InterfaceNode)modelItem;
-					interfaceModelItem.selectedImplementation = (ImplementationNode)interfaceToModelItem[implementation];
 
-					modelItem.references += delta;
+                    ComponentNode modelItem = interfaceToModelItem[new FxInterface(target, null)];
+                    InterfaceNode interfaceModelItem = (InterfaceNode)modelItem;
+                    interfaceModelItem.selectedImplementation = (ImplementationNode)interfaceToModelItem[implementation];
+
+                    modelItem.references += delta;
                     interfaceModelItem.selectedImplementation.references += delta;
                     IEnumerable<string> dependencies = dependencyManager.GetInterfaceDependencies(implementation);
 
@@ -278,10 +278,10 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// <summary>
         /// Recursively decrement reference counter for specified modules and all their dependencies.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Unknown imports during dereference processing.</exception>
-		/// <exception cref="System.InvalidCastException">Model inconsistemcy has been detected.</exception>
-		/// <exception cref="System.InvalidOperationException">Model inconsistemcy has been detected.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Unknown imports during dereference processing.</exception>
+        /// <exception cref="System.InvalidCastException">Model inconsistemcy has been detected.</exception>
+        /// <exception cref="System.InvalidOperationException">Model inconsistemcy has been detected.</exception>
+        /// 
         private List<ComponentNode> DereferenceModule(string targetModule, int delta)
         {
             List<string> nextTargets = new List<string>();
@@ -297,10 +297,10 @@ namespace Prosoft.FXMGR.ConfigFramework
 
                 foreach (string target in tempTargets)
                 {
-					FxInterface implementation = this.interfaceMap.TranslateAbstractInterface(target);
+                    FxInterface implementation = this.interfaceMap.TranslateAbstractInterface(target);
 
                     ComponentNode modelItem = interfaceToModelItem[new FxInterface(target, null)];
-					InterfaceNode interfaceModelItem = (InterfaceNode)modelItem;
+                    InterfaceNode interfaceModelItem = (InterfaceNode)modelItem;
 
                     modelItem.references -= delta;
 
@@ -309,17 +309,17 @@ namespace Prosoft.FXMGR.ConfigFramework
                         throw new InvalidOperationException(
                             "Model inconsistency has been detected on dereferencing " + modelItem.name);
                     }
-                    
+
                     affectedNodes.Add(interfaceModelItem.selectedImplementation);
                     affectedNodes.Add(interfaceModelItem);
 
                     interfaceModelItem.selectedImplementation.references -= delta;
 
-					if (interfaceModelItem.selectedImplementation.references < 0)
-					{
+                    if (interfaceModelItem.selectedImplementation.references < 0)
+                    {
                         throw new InvalidOperationException(
                             "Model inconsistency has been detected on dereferencing " + modelItem.name);
-					}
+                    }
 
                     if (modelItem.references == 0)
                     {
@@ -331,7 +331,7 @@ namespace Prosoft.FXMGR.ConfigFramework
                     nextTargets.AddRange(deps);
                 }
             }
-            while(nextTargets.Count > 0);
+            while (nextTargets.Count > 0);
 
             return affectedNodes;
         }
@@ -340,9 +340,9 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// <summary>
         /// Checks dependency graph for cycles.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Unknown imports during reference processing.</exception>
-		/// <exception cref="System.InvalidOperationException">Dependency graph is not acyclic.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Unknown imports during reference processing.</exception>
+        /// <exception cref="System.InvalidOperationException">Dependency graph is not acyclic.</exception>
+        /// 
         private void CheckForCycles(FxInterface target, Stack<FxInterface> importStack)
         {
             ICollection<FxInterface> implementations = new List<FxInterface>();
@@ -355,16 +355,16 @@ namespace Prosoft.FXMGR.ConfigFramework
 
             foreach (FxInterface implementation in implementations)
             {
-                if (importStack.Contains(implementation)) 
+                if (importStack.Contains(implementation))
                 {
                     StringBuilder sb = new StringBuilder("Cyclic dependency is detected: ");
 
-					foreach (var module in importStack)
-					{
-						sb.Append(module.Key + ":" + module.Value + "; ");
-					}
+                    foreach (var module in importStack)
+                    {
+                        sb.Append(module.Key + ":" + module.Value + "; ");
+                    }
 
-					throw new InvalidOperationException(sb.ToString());
+                    throw new InvalidOperationException(sb.ToString());
                 }
 
                 importStack.Push(implementation);
@@ -377,21 +377,21 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// <summary>
         /// Include module associated with specified model item.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Unknown imports during reference processing.</exception>
-		/// <exception cref="System.InvalidCastException">Model inconsistency has been detected.</exception>
-		/// <exception cref="System.InvalidOperationException">Dependency graph contains cycles.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Unknown imports during reference processing.</exception>
+        /// <exception cref="System.InvalidCastException">Model inconsistency has been detected.</exception>
+        /// <exception cref="System.InvalidOperationException">Dependency graph contains cycles.</exception>
+        /// 
         public IEnumerable<IModelItem> IncludeModule(IModelItem modelItem)
         {
-			if (modelItem == null)
-				throw new ArgumentException();
+            if (modelItem == null)
+                throw new ArgumentException();
 
             InterfaceNode interfaceModelItem = (InterfaceNode)modelItem;
             FxInterface target = interfaceModelItem.intrface;
-			CheckForCycles(this.interfaceMap.TranslateAbstractInterface(target.Key), new Stack<FxInterface>());
-			IEnumerable<ComponentNode> affectedNodes = ReferenceModule(target.Key, 1);
-			markedModules.Add(target.Key);
-			interfaceModelItem.included = true;
+            CheckForCycles(this.interfaceMap.TranslateAbstractInterface(target.Key), new Stack<FxInterface>());
+            IEnumerable<ComponentNode> affectedNodes = ReferenceModule(target.Key, 1);
+            markedModules.Add(target.Key);
+            interfaceModelItem.included = true;
             return affectedNodes;
         }
 
@@ -400,19 +400,19 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// Exclude module associated with specified model item.
         /// Note: Use IsExcludeAllowed before using of this function.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Unknown imports during dereference processing.</exception>
-		/// <exception cref="System.InvalidCastException">Model inconsistemcy has been detected.</exception>
-		/// <exception cref="System.InvalidOperationException">Model inconsistency has been detected.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Unknown imports during dereference processing.</exception>
+        /// <exception cref="System.InvalidCastException">Model inconsistemcy has been detected.</exception>
+        /// <exception cref="System.InvalidOperationException">Model inconsistency has been detected.</exception>
+        /// 
         public IEnumerable<IModelItem> ExcludeModule(IModelItem modelItem)
         {
-			if (modelItem == null)
-				throw new ArgumentException();
+            if (modelItem == null)
+                throw new ArgumentException();
 
             InterfaceNode interfaceModelItem = (InterfaceNode)modelItem;
-			IEnumerable<ComponentNode> affectedNodes = DereferenceModule(interfaceModelItem.intrface.Key, 1);
-			markedModules.Remove(interfaceModelItem.intrface.Key);
-			interfaceModelItem.included = false;
+            IEnumerable<ComponentNode> affectedNodes = DereferenceModule(interfaceModelItem.intrface.Key, 1);
+            markedModules.Remove(interfaceModelItem.intrface.Key);
+            interfaceModelItem.included = false;
             return affectedNodes;
         }
 
@@ -421,14 +421,14 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// Change implementation for specified interface (dereference old implementation and then
         /// reference new one.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Unknown imports during reference processing.</exception>
-		/// <exception cref="System.InvalidCastException">Model inconsistemcy has been detected.</exception>
-		/// <exception cref="System.InvalidOperationException">Model inconsistemcy has been detected.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Unknown imports during reference processing.</exception>
+        /// <exception cref="System.InvalidCastException">Model inconsistemcy has been detected.</exception>
+        /// <exception cref="System.InvalidOperationException">Model inconsistemcy has been detected.</exception>
+        /// 
         public IEnumerable<IModelItem> ChangeImplementation(IModelItem interfaceModelItem, IModelItem newImplModelItem)
         {
-			if (interfaceModelItem == null || newImplModelItem == null)
-				throw new ArgumentException();
+            if (interfaceModelItem == null || newImplModelItem == null)
+                throw new ArgumentException();
 
             InterfaceNode parent = (InterfaceNode)interfaceModelItem;
             ImplementationNode from = parent.selectedImplementation;
@@ -453,9 +453,9 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// Note: This functionality is is taken out from exclude function in order to allow GUI application to set
         /// availability of GUI elements for user.
         /// </summary>
-		/// <exception cref="System.InvalidCastException">Model inconsistemcy has been detected.</exception>
-		/// <exception cref="System.InvalidOperationException">Model inconsistemcy has been detected.</exception>
-		/// 
+        /// <exception cref="System.InvalidCastException">Model inconsistemcy has been detected.</exception>
+        /// <exception cref="System.InvalidOperationException">Model inconsistemcy has been detected.</exception>
+        /// 
         public bool IsExcludeAllowed(IModelItem interfaceModelItem)
         {
             InterfaceNode interfaceNode = (InterfaceNode)interfaceModelItem;
@@ -517,43 +517,43 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// </summary> 
         public IModelItem GetModelItemByName(string module, string impl = null)
         {
-			ComponentNode modelNode = null;
+            ComponentNode modelNode = null;
             FxInterface fullName = new FxInterface(module, impl);
-			interfaceToModelItem.TryGetValue(fullName, out modelNode);
-			return modelNode;
+            interfaceToModelItem.TryGetValue(fullName, out modelNode);
+            return modelNode;
         }
 
-		//--------------------------------------------------------------------------------
-		/// <summary>
-		/// Reset model and all reference counters. It should be used in case of exceptions in order to 
-		/// prevent the system from inconsistent state (i.e. exception within recursive module reference process).
-		/// </summary>
-		private IEnumerable<IModelItem> Reset()
-		{
-			List<IModelItem> affectedNodes = new List<IModelItem>();
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// Reset model and all reference counters. It should be used in case of exceptions in order to 
+        /// prevent the system from inconsistent state (i.e. exception within recursive module reference process).
+        /// </summary>
+        private IEnumerable<IModelItem> Reset()
+        {
+            List<IModelItem> affectedNodes = new List<IModelItem>();
 
-			markedModules.Clear();
+            markedModules.Clear();
 
-			foreach(CategoryNode cn in model)
-			{
-				affectedNodes.AddRange(cn.children);
+            foreach (CategoryNode cn in model)
+            {
+                affectedNodes.AddRange(cn.children);
 
-				foreach(InterfaceNode inode in cn.children)
-				{
-					inode.selectedImplementation = null;
-					inode.references = 0;
-					inode.included = false;
+                foreach (InterfaceNode inode in cn.children)
+                {
+                    inode.selectedImplementation = null;
+                    inode.references = 0;
+                    inode.included = false;
 
-					affectedNodes.AddRange(inode.children);
+                    affectedNodes.AddRange(inode.children);
 
-					foreach(ImplementationNode impl in inode.children)
-					{
-						impl.references = 0;
-					}
-				}
-			}
+                    foreach (ImplementationNode impl in inode.children)
+                    {
+                        impl.references = 0;
+                    }
+                }
+            }
 
-			return affectedNodes;
-		}
+            return affectedNodes;
+        }
     }
 }

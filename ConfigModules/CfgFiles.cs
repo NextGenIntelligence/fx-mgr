@@ -41,17 +41,17 @@ namespace Prosoft.FXMGR.ConfigModules
 
         public CfgFiles(IEnumerable<KeyValuePair<string, YamlStream>> metadata)
         {
-			if (metadata == null)
-				throw new System.ArgumentNullException();
+            if (metadata == null)
+                throw new System.ArgumentNullException();
 
             this.metadata = metadata;
         }
 
-		/// <summary>
-		/// Getting list of files associated with the modules. 
-		/// </summary>
-		/// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
-		/// 
+        /// <summary>
+        /// Getting list of files associated with the modules. 
+        /// </summary>
+        /// <exception cref="System.FormatException">Throws when interface describing metadata is in wrong format.</exception>
+        /// 
         public IEnumerable<KeyValuePair<string, string>> GetAssociatedFiles(IEnumerable<FxInterface> includedModules)
         {
             HashSet<FxInterface> requiredModules = new HashSet<FxInterface>(includedModules);

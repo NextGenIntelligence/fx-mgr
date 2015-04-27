@@ -40,8 +40,8 @@ namespace Prosoft.FXMGR.ConfigModules
 
         public CfgGraphViz(DependencyManager dm, InterfaceTranslator translator)
         {
-			if (dm == null || translator == null)
-				throw new System.ArgumentNullException();
+            if (dm == null || translator == null)
+                throw new System.ArgumentNullException();
 
             this.dependencyManager = dm;
             this.translator = translator;
@@ -53,8 +53,8 @@ namespace Prosoft.FXMGR.ConfigModules
         /// First variable is enumeration of all modules, included in build, second - modules
         /// which should be reflected in output graph.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Throws when unknown interface is used.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Throws when unknown interface is used.</exception>
+        /// 
         public string GetDOT(IEnumerable<string> modules, IEnumerable<string> modulesToBeShown)
         {
             string dot = "";
@@ -96,11 +96,11 @@ namespace Prosoft.FXMGR.ConfigModules
                     //
                     // Accumulate modules which should be replaced with their dependencies in itemsToReplace.
                     //
-                    foreach(var module in moduleDependencies.Except(graphModules))
+                    foreach (var module in moduleDependencies.Except(graphModules))
                     {
                         itemsToReplace.Add(module);
                     }
-                    
+
                     //
                     // Replace all modules from itemsToReplace with dependencies and store them into temp.
                     //
@@ -129,7 +129,7 @@ namespace Prosoft.FXMGR.ConfigModules
                 //
                 foreach (var key in dependencyGraph.Keys)
                 {
-                    graphProcess = graphProcess | 
+                    graphProcess = graphProcess |
                         dependencyGraph[key].RemoveWhere(x => dependencyGraph[x].Count == 0 && !graphModules.Contains(x)) > 0;
                 }
             }

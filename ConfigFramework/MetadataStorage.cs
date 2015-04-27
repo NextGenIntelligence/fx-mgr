@@ -83,20 +83,20 @@ namespace Prosoft.FXMGR.ConfigFramework
 
     public class MetadataStorage
     {
-		private class MetadataFormat
-		{
-			public static bool Validate(YamlStream stream)
-			{
-				foreach (var node in stream.Documents)
-				{
-					if (!(node.RootNode is YamlMappingNode))
-					{
-						return false;
-					}
-				}
-				return true;
-			}
-		}
+        private class MetadataFormat
+        {
+            public static bool Validate(YamlStream stream)
+            {
+                foreach (var node in stream.Documents)
+                {
+                    if (!(node.RootNode is YamlMappingNode))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
 
         public event BeforeAnalyzingHandler BeforeAnalyzing;
         public event ItemAnalyzedHandler ItemAnalyzed;
@@ -108,10 +108,10 @@ namespace Prosoft.FXMGR.ConfigFramework
 
         public MetadataStorage(IEnumerable<string> folders, string[] extensions)
         {
-			if (folders == null)
-			{
-				throw new ArgumentNullException();
-			}
+            if (folders == null)
+            {
+                throw new ArgumentNullException();
+            }
 
             this.folders = folders;
             this.extensions = extensions;
@@ -121,10 +121,10 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// <summary>
         /// Get all files with given extension which are contained in specified folders.
         /// </summary>
-		/// <exception cref="System.UnauthorizedAccessException">Specified folder cannot be read.</exception>
-		/// <exception cref="System.IOException">Specified folder cannot be read.</exception>
-		/// <exception cref="System.ArgumentException">Invalid argument(s).</exception>
-		/// 
+        /// <exception cref="System.UnauthorizedAccessException">Specified folder cannot be read.</exception>
+        /// <exception cref="System.IOException">Specified folder cannot be read.</exception>
+        /// <exception cref="System.ArgumentException">Invalid argument(s).</exception>
+        /// 
         private static void GetFiles(string path, string[] extensions, List<string> filesFound)
         {
             if (Directory.Exists(path))
@@ -145,12 +145,12 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// <summary>
         /// Metadata extraction helper.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Invalid argument(s).</exception>
-		/// <exception cref="System.ObjectDisposedException">Synchronization error during parallel metadata analysis.</exception>
-		/// <exception cref="System.AggregateException"></exception>
-		/// <exception cref="System.OutOfMemoryException">Some input file is too large.</exception>
-		/// <exception cref="System.OverflowException">Some input file is too large.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Invalid argument(s).</exception>
+        /// <exception cref="System.ObjectDisposedException">Synchronization error during parallel metadata analysis.</exception>
+        /// <exception cref="System.AggregateException"></exception>
+        /// <exception cref="System.OutOfMemoryException">Some input file is too large.</exception>
+        /// <exception cref="System.OverflowException">Some input file is too large.</exception>
+        /// 
         private bool AnalyzeItems(IEnumerable<string> files)
         {
             var po = new ParallelOptions();
@@ -167,49 +167,49 @@ namespace Prosoft.FXMGR.ConfigFramework
                 Parallel.ForEach(files, po, item =>
                 //foreach (var item in files)
                 {
-					try
-					{
-						YamlStream metastream = Prosoft.FXMGR.Metadata.MetadataProvider.GetMetadata(item);
+                    try
+                    {
+                        YamlStream metastream = Prosoft.FXMGR.Metadata.MetadataProvider.GetMetadata(item);
 
-						if(!MetadataFormat.Validate(metastream)) throw new FormatException();
+                        if (!MetadataFormat.Validate(metastream)) throw new FormatException();
 
-						lock (syncRoot)
-						{
-							metadata.Add(new KeyValuePair<string, YamlStream>(item, metastream));
-						}
+                        lock (syncRoot)
+                        {
+                            metadata.Add(new KeyValuePair<string, YamlStream>(item, metastream));
+                        }
 
-						if (ItemAnalyzed != null)
-						{
-							var e = new ItemAnalyzedEventArgs(item);
-							ItemAnalyzed(this, e);
+                        if (ItemAnalyzed != null)
+                        {
+                            var e = new ItemAnalyzedEventArgs(item);
+                            ItemAnalyzed(this, e);
 
-							if (e.abort)
-							{
-								cts.Cancel();
-								po.CancellationToken.ThrowIfCancellationRequested();
-							}
-						}
-					}
-					catch (FormatException)
-					{
-						Logger.Log("Wrong metadata format in file: " + item);
-					}
-					catch (UnauthorizedAccessException)
-					{
-						Logger.Log("Can't access file: " + item);
-					}
-					catch (IOException)
-					{
-						Logger.Log("Can't read file: " + item);
-					}
-					catch (YamlException e)
-					{
-						Logger.Log(String.Format("Metadata syntax error in file {0} at {1}.", item, e.Start.Column.ToString()));
-					}
-					catch (NotSupportedException)
-					{
-						Logger.Log("Can't process metadata in file: " + item);
-					}
+                            if (e.abort)
+                            {
+                                cts.Cancel();
+                                po.CancellationToken.ThrowIfCancellationRequested();
+                            }
+                        }
+                    }
+                    catch (FormatException)
+                    {
+                        Logger.Log("Wrong metadata format in file: " + item);
+                    }
+                    catch (UnauthorizedAccessException)
+                    {
+                        Logger.Log("Can't access file: " + item);
+                    }
+                    catch (IOException)
+                    {
+                        Logger.Log("Can't read file: " + item);
+                    }
+                    catch (YamlException e)
+                    {
+                        Logger.Log(String.Format("Metadata syntax error in file {0} at {1}.", item, e.Start.Column.ToString()));
+                    }
+                    catch (NotSupportedException)
+                    {
+                        Logger.Log("Can't process metadata in file: " + item);
+                    }
                 }
                 );
             }
@@ -226,14 +226,14 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// <summary>
         /// Extracts metadata from all files from source folders.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Invalid argument(s).</exception>
-		/// <exception cref="System.ObjectDisposedException">Synchronization error during parallel metadata analysis.</exception>
-		/// <exception cref="System.AggregateException"></exception>
-		/// <exception cref="System.OutOfMemoryException">Some input file is too large.</exception>
-		/// <exception cref="System.OverflowException">Some input file is too large.</exception>
-		/// <exception cref="System.UnauthorizedAccessException">Some input files cannot be accessed.</exception>
-		/// <exception cref="System.IOException">Some input files cannot be accessed.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Invalid argument(s).</exception>
+        /// <exception cref="System.ObjectDisposedException">Synchronization error during parallel metadata analysis.</exception>
+        /// <exception cref="System.AggregateException"></exception>
+        /// <exception cref="System.OutOfMemoryException">Some input file is too large.</exception>
+        /// <exception cref="System.OverflowException">Some input file is too large.</exception>
+        /// <exception cref="System.UnauthorizedAccessException">Some input files cannot be accessed.</exception>
+        /// <exception cref="System.IOException">Some input files cannot be accessed.</exception>
+        /// 
         public bool AnalyzeSources()
         {
             var srcs = new List<string>();
@@ -278,10 +278,10 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// </summary>
         public void AddGeneratedItem(string file, string intrface, string impl)
         {
-			YamlStream yaml = new YamlStream();
-			string yamlString = String.Format("{{interface: [{0}, {1}]}}", intrface, impl);
-			TextReader r = new StringReader(yamlString);
-			yaml.Load(r);
+            YamlStream yaml = new YamlStream();
+            string yamlString = String.Format("{{interface: [{0}, {1}]}}", intrface, impl);
+            TextReader r = new StringReader(yamlString);
+            yaml.Load(r);
             metadata.Add(new KeyValuePair<string, YamlStream>(file, yaml));
         }
     }

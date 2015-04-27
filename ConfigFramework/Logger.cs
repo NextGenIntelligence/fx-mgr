@@ -31,19 +31,19 @@ using System.IO;
 
 namespace Prosoft.FXMGR.ConfigFramework
 {
-	public class Logger
-	{
-		private static StreamWriter stream;
+    public class Logger
+    {
+        private static StreamWriter stream;
 
-		public static void SetOutputStream(StreamWriter stream)
-		{
-			Logger.stream = stream;
-		}
+        public static void SetOutputStream(StreamWriter stream)
+        {
+            Logger.stream = stream;
+        }
 
-		public static void Log(string log)
-		{
-			if (stream != null)
-				stream.WriteLine(log);
-		}
-	}
+        public static void Log(string log)
+        {
+            if (stream != null)
+                stream.WriteLine(log);
+        }
+    }
 }

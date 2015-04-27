@@ -35,7 +35,7 @@ using System.Text.RegularExpressions;
 
 namespace Prosoft.FXMGR.ConfigFramework
 {
-	using FxInterface = KeyValuePair<string, string>;
+    using FxInterface = KeyValuePair<string, string>;
 
     public class InterfaceTranslator
     {
@@ -44,32 +44,32 @@ namespace Prosoft.FXMGR.ConfigFramework
 
         private readonly DependencyManager dependencyManager;
 
-		//--------------------------------------------------------------------------------
-		/// <summary>
-		/// Create empty interface translator.
-		/// </summary>
-		/// <exception cref="System.ArgumentNullException">Throws when null-ref metadata is specified.</exception>
-		///
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// Create empty interface translator.
+        /// </summary>
+        /// <exception cref="System.ArgumentNullException">Throws when null-ref metadata is specified.</exception>
+        ///
         public InterfaceTranslator(DependencyManager dm)
         {
-			if (dm == null)
-				throw new ArgumentNullException();
+            if (dm == null)
+                throw new ArgumentNullException();
 
             this.dependencyManager = dm;
             this.currentMapping = new Dictionary<string, string>();
             this.templateMapping = new Dictionary<string, string>();
         }
 
-		//--------------------------------------------------------------------------------
-		/// <summary>
-		/// Create interface translator with preset template mapping.
-		/// </summary>
-		/// <exception cref="System.ArgumentNullException">Throws when null-ref metadata is specified.</exception>
-		///
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// Create interface translator with preset template mapping.
+        /// </summary>
+        /// <exception cref="System.ArgumentNullException">Throws when null-ref metadata is specified.</exception>
+        ///
         public InterfaceTranslator(DependencyManager dm, IDictionary<string, string> savedMapping)
         {
-			if (dm == null || savedMapping == null)
-				throw new ArgumentNullException();
+            if (dm == null || savedMapping == null)
+                throw new ArgumentNullException();
 
             this.dependencyManager = dm;
             this.currentMapping = new Dictionary<string, string>(savedMapping);
@@ -80,14 +80,14 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// <summary>
         /// Adds mapping containing in the template file into template mapping dictionary.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Throws when target file is incorrect or non-readable.</exception>
-		/// <exception cref="System.ObjectDisposedException">Trying to read the file which is disposed.</exception>
-		/// <exception cref="System.UnauthorizedAccessException">Specified file cannot be read.</exception>
-		/// <exception cref="System.IOException">Specified file cannot be read.</exception>
-		/// <exception cref="System.NotSupportedException">Operation is not supported.</exception>
-		/// <exception cref="System.OutOfMemoryException">Specified file is too large and cannot be read.</exception>
-		/// <exception cref="System.FormatException">Specified file is in wrong format.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Throws when target file is incorrect or non-readable.</exception>
+        /// <exception cref="System.ObjectDisposedException">Trying to read the file which is disposed.</exception>
+        /// <exception cref="System.UnauthorizedAccessException">Specified file cannot be read.</exception>
+        /// <exception cref="System.IOException">Specified file cannot be read.</exception>
+        /// <exception cref="System.NotSupportedException">Operation is not supported.</exception>
+        /// <exception cref="System.OutOfMemoryException">Specified file is too large and cannot be read.</exception>
+        /// <exception cref="System.FormatException">Specified file is in wrong format.</exception>
+        /// 
         public void LoadTemplate(string templateFilePath)
         {
             using (TextReader mappingReader = File.OpenText(templateFilePath))
@@ -99,18 +99,18 @@ namespace Prosoft.FXMGR.ConfigFramework
                 {
                     Match map = mappingRegex.Match(mapping);
 
-					try
-					{
-						if (map.Success)
-						{
-							templateMapping[map.Groups[1].Value] = map.Groups[2].Value;
-						}
-					}
-					catch(IndexOutOfRangeException e)
-					{
+                    try
+                    {
+                        if (map.Success)
+                        {
+                            templateMapping[map.Groups[1].Value] = map.Groups[2].Value;
+                        }
+                    }
+                    catch (IndexOutOfRangeException e)
+                    {
                         throw new FormatException(
                             "Invalid template format in file: " + templateFilePath, e.InnerException);
-					}
+                    }
                 }
             }
         }
@@ -119,8 +119,8 @@ namespace Prosoft.FXMGR.ConfigFramework
         /// <summary>
         /// Translates interface name into implementation and adds translation into current mapping.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Unknown interface is used.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Unknown interface is used.</exception>
+        /// 
         public FxInterface TranslateAbstractInterface(string interfaceName)
         {
             string implName = null;
@@ -129,15 +129,15 @@ namespace Prosoft.FXMGR.ConfigFramework
             {
                 if (!templateMapping.TryGetValue(interfaceName, out implName))
                 {
-					IEnumerable<string> impls = dependencyManager.GetAvailImplementations(interfaceName);
-					implName = impls.First();
+                    IEnumerable<string> impls = dependencyManager.GetAvailImplementations(interfaceName);
+                    implName = impls.First();
 
-					if (impls.Count() > 1)
-					{
-						Logger.Log(
+                    if (impls.Count() > 1)
+                    {
+                        Logger.Log(
                             String.Format("Warning! Template has no implementation for interface {0}. Implementation {1} is used.",
-							interfaceName, implName));
-					}
+                            interfaceName, implName));
+                    }
                 }
 
                 currentMapping[interfaceName] = implName;
@@ -176,13 +176,13 @@ namespace Prosoft.FXMGR.ConfigFramework
             }
         }
 
-		//--------------------------------------------------------------------------------
-		/// <summary>
-		/// Clear current mapping.
-		/// </summary>
-		public void Reset()
-		{
-			currentMapping.Clear();
-		}
+        //--------------------------------------------------------------------------------
+        /// <summary>
+        /// Clear current mapping.
+        /// </summary>
+        public void Reset()
+        {
+            currentMapping.Clear();
+        }
     }
 }

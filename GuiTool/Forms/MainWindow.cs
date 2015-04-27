@@ -128,7 +128,7 @@ namespace Prosoft.FXMGR.GuiTool
 
         private void controller_ProjectStateChanged(object sender, ProjectStateChangedEventArgs e)
         {
-            BeginInvoke((Action)(() => 
+            BeginInvoke((Action)(() =>
             {
                 UpdateUiState(e.state);
 
@@ -290,7 +290,7 @@ namespace Prosoft.FXMGR.GuiTool
             componentTreeView.ClearNodes();
 
             componentTreeView.BeginUnboundLoad();
-            
+
             foreach (IModelItem node in nodes)
             {
                 ShowNode(null, node);
@@ -315,7 +315,7 @@ namespace Prosoft.FXMGR.GuiTool
             editorRow.Tag = option;
 
             editorRow.Properties.RowEdit = optionsComboBox;
-            
+
             return (object)option.friendlyName[option.index];
         }
 

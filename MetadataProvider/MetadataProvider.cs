@@ -45,47 +45,47 @@ namespace Prosoft.FXMGR.Metadata
 
         private static Regex multilineComments = new Regex("/\\*.*?\\*/", RegexOptions.Singleline | RegexOptions.Compiled);
         private static Regex singlelineComments = new Regex("//.*?\n", RegexOptions.Compiled);
-		private static Regex metadataRegex = new Regex("FX_METADATA\\s*\\(\\s*\\((.+?)\\)\\s*\\)", RegexOptions.Singleline | RegexOptions.Compiled);
+        private static Regex metadataRegex = new Regex("FX_METADATA\\s*\\(\\s*\\((.+?)\\)\\s*\\)", RegexOptions.Singleline | RegexOptions.Compiled);
         private static Regex includeRegex = new Regex("#\\s*include\\s+FX_INTERFACE\\(\\s*(\\w+)\\s*\\)", RegexOptions.Compiled);
 
         //--------------------------------------------------------------------------------
         /// <summary>
         /// Extracts metadata and import information from given source or header file.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Throws when target file is incorrect or non-readable.</exception>
-		/// <exception cref="System.ObjectDisposedException">Trying to read the file which is disposed.</exception>
-		/// <exception cref="System.ArgumentNullException">Null reference when metadata reading or transformations.</exception>
-		/// <exception cref="System.UnauthorizedAccessException">Specified file cannot be read.</exception>
-		/// <exception cref="System.IOException">Specified file cannot be read.</exception>
-		/// <exception cref="System.NotSupportedException">Operation is not supported.</exception>
-		/// <exception cref="System.ArgumentOutOfRangeException">Specified file is too large and cannot be read.</exception>
-		/// <exception cref="System.OutOfMemoryException">Specified file is too large and cannot be read.</exception>
-		/// 
-		private static RawMetadata GetRawMetadataEntries(string path)
+        /// <exception cref="System.ArgumentException">Throws when target file is incorrect or non-readable.</exception>
+        /// <exception cref="System.ObjectDisposedException">Trying to read the file which is disposed.</exception>
+        /// <exception cref="System.ArgumentNullException">Null reference when metadata reading or transformations.</exception>
+        /// <exception cref="System.UnauthorizedAccessException">Specified file cannot be read.</exception>
+        /// <exception cref="System.IOException">Specified file cannot be read.</exception>
+        /// <exception cref="System.NotSupportedException">Operation is not supported.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">Specified file is too large and cannot be read.</exception>
+        /// <exception cref="System.OutOfMemoryException">Specified file is too large and cannot be read.</exception>
+        /// 
+        private static RawMetadata GetRawMetadataEntries(string path)
         {
             RawMetadata rawMetadata = new RawMetadata();
 
-			string fileContent = File.ReadAllText(path);
+            string fileContent = File.ReadAllText(path);
 
-			//
-			// Remove comments from source or header.
-			//
-			fileContent = multilineComments.Replace(fileContent, "");
-			fileContent = singlelineComments.Replace(fileContent, "");
+            //
+            // Remove comments from source or header.
+            //
+            fileContent = multilineComments.Replace(fileContent, "");
+            fileContent = singlelineComments.Replace(fileContent, "");
 
-			MatchCollection metadata = metadataRegex.Matches(fileContent);
-			MatchCollection includes = includeRegex.Matches(fileContent);
+            MatchCollection metadata = metadataRegex.Matches(fileContent);
+            MatchCollection includes = includeRegex.Matches(fileContent);
 
-			foreach (Match pragmaEntry in metadata)
-			{
-				string metadataWithRemovedNewlines = pragmaEntry.Groups[1].Value.Replace("\r\n", "");
-				rawMetadata.metadataEntries.Add(metadataWithRemovedNewlines);
-			}
+            foreach (Match pragmaEntry in metadata)
+            {
+                string metadataWithRemovedNewlines = pragmaEntry.Groups[1].Value.Replace("\r\n", "");
+                rawMetadata.metadataEntries.Add(metadataWithRemovedNewlines);
+            }
 
-			foreach (Match includeEntry in includes)
-			{
-				rawMetadata.includes.Add(includeEntry.Groups[1].Value);
-			}
+            foreach (Match includeEntry in includes)
+            {
+                rawMetadata.includes.Add(includeEntry.Groups[1].Value);
+            }
 
             return rawMetadata;
         }
@@ -95,33 +95,33 @@ namespace Prosoft.FXMGR.Metadata
         /// Parse metadata entries in file specified and return associated YAML
         /// stream or empty stream if no metadata is found.
         /// </summary>
-		/// <exception cref="System.ArgumentNullException">Throws when invalid argument (i.e. null) passed as metadata entries.</exception>
-		/// <exception cref="System.OverflowException">Too many metadata entries.</exception>
-		/// <exception cref="System.YamlException">Throws when input metadata entries cannot be parsed due to syntax errors.</exception>
-		/// 
+        /// <exception cref="System.ArgumentNullException">Throws when invalid argument (i.e. null) passed as metadata entries.</exception>
+        /// <exception cref="System.OverflowException">Too many metadata entries.</exception>
+        /// <exception cref="System.YamlException">Throws when input metadata entries cannot be parsed due to syntax errors.</exception>
+        /// 
         private static YamlStream ParseRawMetadataEntries(IEnumerable<string> entries)
         {
             YamlStream metadataStream = new YamlStream();
 
-			foreach (var entry in entries)
-			{
-				using (StringReader input = new StringReader(entry))
-				{
-					if (metadataStream.Documents.Count() == 0)
-					{
-						metadataStream.Load(input);
-					}
-					else
-					{
-						//
-						// Metadata entries are represented as sub-documents in stream.
-						//
-						YamlStream tempStream = new YamlStream();
-						tempStream.Load(input);
-						metadataStream.Add(tempStream.Documents[0]);
-					}
-				}
-			}
+            foreach (var entry in entries)
+            {
+                using (StringReader input = new StringReader(entry))
+                {
+                    if (metadataStream.Documents.Count() == 0)
+                    {
+                        metadataStream.Load(input);
+                    }
+                    else
+                    {
+                        //
+                        // Metadata entries are represented as sub-documents in stream.
+                        //
+                        YamlStream tempStream = new YamlStream();
+                        tempStream.Load(input);
+                        metadataStream.Add(tempStream.Documents[0]);
+                    }
+                }
+            }
 
             return metadataStream;
         }
@@ -132,15 +132,15 @@ namespace Prosoft.FXMGR.Metadata
         /// information to the metadata (is extracted from includes).
         /// "dependencies" key is reserved at top-level metadata entry.
         /// </summary>
-		/// <exception cref="System.ArgumentException">Throws when target file is incorrect or non-readable.</exception>
-		/// <exception cref="System.ObjectDisposedException">Trying to read the file which is disposed.</exception>
-		/// <exception cref="System.UnauthorizedAccessException">Specified file cannot be read.</exception>
-		/// <exception cref="System.IOException">Specified file cannot be read.</exception>
-		/// <exception cref="System.NotSupportedException">Operation is not supported.</exception>
-		/// <exception cref="System.OutOfMemoryException">Specified file is too large and cannot be read.</exception>
-		/// <exception cref="System.OverflowException">Too many metadata entries.</exception>
-		/// <exception cref="System.YamlException">Throws when input metadata entries cannot be parsed due to syntax errors.</exception>
-		/// 
+        /// <exception cref="System.ArgumentException">Throws when target file is incorrect or non-readable.</exception>
+        /// <exception cref="System.ObjectDisposedException">Trying to read the file which is disposed.</exception>
+        /// <exception cref="System.UnauthorizedAccessException">Specified file cannot be read.</exception>
+        /// <exception cref="System.IOException">Specified file cannot be read.</exception>
+        /// <exception cref="System.NotSupportedException">Operation is not supported.</exception>
+        /// <exception cref="System.OutOfMemoryException">Specified file is too large and cannot be read.</exception>
+        /// <exception cref="System.OverflowException">Too many metadata entries.</exception>
+        /// <exception cref="System.YamlException">Throws when input metadata entries cannot be parsed due to syntax errors.</exception>
+        /// 
         public static YamlStream GetMetadata(string path)
         {
             RawMetadata rawMetadata = GetRawMetadataEntries(path);
@@ -164,7 +164,7 @@ namespace Prosoft.FXMGR.Metadata
                 metadataRoot.Children.Add(new YamlScalarNode("dependencies"), imports);
             }
 
-			return metadata;
+            return metadata;
         }
 
         //--------------------------------------------------------------------------------

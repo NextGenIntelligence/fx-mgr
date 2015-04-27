@@ -38,7 +38,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 namespace Prosoft.FXMGR.GuiTool
 {
     using FxInterface = KeyValuePair<string, string>;
-    
+
     public enum ControllerState
     {
         Empty,
@@ -392,13 +392,13 @@ namespace Prosoft.FXMGR.GuiTool
 
             if (outputs.initGeneration)
             {
-				IEnumerable<string> modulesWithCtor = null;
+                IEnumerable<string> modulesWithCtor = null;
                 CfgInitSequence initSequence = new CfgInitSequence(dependencyManager, interfaceTranslator, metadata);
-				IEnumerable<KeyValuePair<string, bool>> ctors = initSequence.GetInitSequence(includedModules, out modulesWithCtor);
+                IEnumerable<KeyValuePair<string, bool>> ctors = initSequence.GetInitSequence(includedModules, out modulesWithCtor);
 
                 string ctorSequence = "";
 
-				foreach (var m in modulesWithCtor)
+                foreach (var m in modulesWithCtor)
                 {
                     ctorSequence += "#include FX_INTERFACE(" + m + ")\r\n";
                 }

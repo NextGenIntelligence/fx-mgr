@@ -159,7 +159,7 @@ namespace Prosoft.FXMGR.GuiTool.Forms
             {
                 settings.optionsPath = optionsPath;
             }
-            
+
             settings.mappingGeneration = (bool)vGridControl1.Rows[5].ChildRows[0].Properties.Value;
 
             string mappingPath = (string)vGridControl1.Rows[5].ChildRows[1].Properties.Value;
